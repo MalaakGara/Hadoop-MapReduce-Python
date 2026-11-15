@@ -1,0 +1,5 @@
+
+2026-01-01	09:00	StoreA	Laptop	500	Cash
+2026-01-01	10:00	StoreB	Phone	300	Card
+2026-01-01	11:00	StoreA	Mouse	20	Cash
+2026-01-01	12:00	StoreB	Tablet	600	Card
