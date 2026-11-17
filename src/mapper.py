@@ -1,25 +1,54 @@
 
 #!/usr/bin/env python3
+"""Mapper Hadoop Streaming : extrait le magasin et le coût de chaque achat."""
 
+import re
 import sys
+from decimal import Decimal, InvalidOperation
 
-for line in sys.stdin:
+# Separateur : tabulations ou deux espaces ou plus.
+SEPARATOR = re.compile(r"\t+|\s{2,}")
+EXPECTED_COLUMNS = 6
 
+
+def parse_line(line):
+    """Retourne (store, cost) ou None si la ligne est invalide."""
     line = line.strip()
 
     if not line:
-        continue
+        return None
 
-    # Split the line into columns
-    fields = line.split("\t")
+    fields = [field.strip() for field in SEPARATOR.split(line)]
 
-    # Check that there are exactly 6 columns
-    if len(fields) != 6:
-        continue
+    if len(fields) != EXPECTED_COLUMNS:
+        return None
 
-    # Extract the useful information
     store = fields[2]
-    cost = fields[4]
 
-    # Send store and cost to the Reducer
-    print(f"{store}\t{cost}")
+    if not store:
+        return None
+
+    try:
+        cost = Decimal(fields[4])
+    except InvalidOperation:
+        return None
+
+    if not cost.is_finite():
+        return None
+
+    return store, cost
+
+
+def main():
+    for line in sys.stdin:
+        parsed = parse_line(line)
+
+        if parsed is None:
+            continue
+
+        store, cost = parsed
+        print("{}\t{}".format(store, cost))
+
+
+if __name__ == "__main__":
+    main()
